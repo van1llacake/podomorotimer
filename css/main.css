@@ -1,72 +1,16 @@
-/* Common style rules */
-*:focus
+
+<html>
+<head>
+<link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.3.1/css/all.css'><link rel="stylesheet" href="./style.css">
+
+    <style>
+      
+      *:focus
 {
     outline: none;
 }
 
-html, body
-{
-    height: 100%;
-}
-
-body
-{
-    padding-top: 64px;
-    box-sizing: border-box;
-}
-
-#main_banner
-{
-    position: fixed;
-    top: 0;
-    right: 0;
-    left: 0;
-    height: 44px;
-    text-align: center;
-    padding: 10px;
-    background-color: #fff;
-    z-index: 9999;
-}
-
-#main_banner a
-{
-    display: inline-block;
-    width: 24px;
-    height: 20px;
-    color: #fff;
-    font-size: 20px;
-    text-align: center;
-    text-decoration: none;
-    padding: 12px 10px;
-    margin: 0 5px;
-    border-radius: 2px;
-}
-
-#main_banner a i
-{
-    display: block;
-}
-
-#ytd_url
-{
-    background-color: #ff0000;
-}
-
-#insta_url
-{
-    background-color: #ff0057;
-}
-
-#cdpn_url
-{
-    background-color: #000;
-}
-
-#web_url
-{
-    background-color: #143240;
-}
-/* Common style rules finished */
+body > iframe:first-child { display: none !important; }
 
 body
 {
@@ -93,7 +37,7 @@ body
     right: -30px;
     bottom: -30px;
     left: -30px;
-    background-image: url("https://raw.githubusercontent.com/himalayasingh/music-player-1/master/img/_1.jpg");
+    background-color: #fff;
     background-repeat: no-repeat;
     background-size: cover;
     background-position: 50%;
@@ -207,7 +151,7 @@ body
     white-space: pre;
     padding: 5px 6px;
     border-radius: 4px;
-	display:none;
+        display:none;
 }
 
 #s-hover
@@ -243,7 +187,7 @@ body
     position: relative;
     height: 100%;
     background-color: #fff;
-    box-shadow: 0 30px 80px #656565;
+    box-shadow: 0 1px 5px #cecece;
     border-radius: 15px;
     z-index: 2;
 }
@@ -405,3 +349,23 @@ body
 {
     color: #fff;
 }
+
+#ytd-url {
+  display: block;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  padding: 10px 14px;
+  margin: 20px;
+  color: #fff;
+  font-size: 14px;
+  text-decoration: none;
+  background-color: #ae5f87;
+  border-radius: 4px;
+  box-shadow: 0 10px 20px -5px rgba(174, 95, 135, 0.86);
+  z-index: 125;
+}
+      
+    </style>
+</head>
+<body>
