@@ -1,230 +1,261 @@
-$(function()
-{
-    var playerTrack = $("#player-track"), bgArtwork = $('#bg-artwork'), bgArtworkUrl, albumName = $('#album-name'), trackName = $('#track-name'), albumArt = $('#album-art'), sArea = $('#s-area'), seekBar = $('#seek-bar'), trackTime = $('#track-time'), insTime = $('#ins-time'), sHover = $('#s-hover'), playPauseButton = $("#play-pause-button"),  i = playPauseButton.find('i'), tProgress = $('#current-time'), tTime = $('#track-length'), seekT, seekLoc, seekBarPos, cM, ctMinutes, ctSeconds, curMinutes, curSeconds, durMinutes, durSeconds, playProgress, bTime, nTime = 0, buffInterval = null, tFlag = false, albums = ['my magic shop','sexy','Electro Boy','Home','Proxy (Original Mix)'], trackNames = ['you gave me the best of me','popstar - chaeyoung, coco & clair clair','Kaaze - Electro Boy','Jordan Schor - Home','Martin Garrix - Proxy'], albumArtworks = ['_1','_2','_3','_4','_5'], trackUrl = ['https://raw.githubusercontent.com/saeju29/musicplayer/main/magicshop.mp3','https://github.com/van1llacake/Finmp3dupe/raw/master/music/2.mp3','https://raw.githubusercontent.com/himalayasingh/music-player-1/master/music/3.mp3','https://raw.githubusercontent.com/himalayasingh/music-player-1/master/music/4.mp3','https://raw.githubusercontent.com/himalayasingh/music-player-1/master/music/5.mp3'], playPreviousTrackButton = $('#play-previous'), playNextTrackButton = $('#play-next'), currIndex = -1;
+var startSeconds,
+    sessionCount = 0,
+    counter,
+    defaultTaskTime = 25,
+    defaultBreakTime = 5;
 
-    function playPause()
-    {
-        setTimeout(function()
-        {
-            if(audio.paused)
-            {
-                playerTrack.addClass('active');
-                albumArt.addClass('active');
-                checkBuffering();
-                i.attr('class','fas fa-pause');
-                audio.play();
-            }
-            else
-            {
-                playerTrack.removeClass('active');
-                albumArt.removeClass('active');
-                clearInterval(buffInterval);
-                albumArt.removeClass('buffering');
-                i.attr('class','fas fa-play');
-                audio.pause();
-            }
-        },300);
-    }
-
-            
-        function showHover(event)
-        {
-                seekBarPos = sArea.offset(); 
-                seekT = event.clientX - seekBarPos.left;
-                seekLoc = audio.duration * (seekT / sArea.outerWidth());
-                
-                sHover.width(seekT);
-                
-                cM = seekLoc / 60;
-                
-                ctMinutes = Math.floor(cM);
-                ctSeconds = Math.floor(seekLoc - ctMinutes * 60);
-                
-                if( (ctMinutes < 0) || (ctSeconds < 0) )
-                        return;
-                
-        if( (ctMinutes < 0) || (ctSeconds < 0) )
-                        return;
-                
-                if(ctMinutes < 10)
-                        ctMinutes = '0'+ctMinutes;
-                if(ctSeconds < 10)
-                        ctSeconds = '0'+ctSeconds;
-        
-        if( isNaN(ctMinutes) || isNaN(ctSeconds) )
-            insTime.text('--:--');
-        else
-                    insTime.text(ctMinutes+':'+ctSeconds);
-            
-                insTime.css({'left':seekT,'margin-left':'-21px'}).fadeIn(0);
-                
-        }
-
-    function hideHover()
-        {
-        sHover.width(0);
-        insTime.text('00:00').css({'left':'0px','margin-left':'0px'}).fadeOut(0);                
-    }
-    
-    function playFromClickedPos()
-    {
-        audio.currentTime = seekLoc;
-                seekBar.width(seekT);
-                hideHover();
-    }
-
-    function updateCurrTime()
-        {
-        nTime = new Date();
-        nTime = nTime.getTime();
-
-        if( !tFlag )
-        {
-            tFlag = true;
-            trackTime.addClass('active');
-        }
-
-                curMinutes = Math.floor(audio.currentTime / 60);
-                curSeconds = Math.floor(audio.currentTime - curMinutes * 60);
-                
-                durMinutes = Math.floor(audio.duration / 60);
-                durSeconds = Math.floor(audio.duration - durMinutes * 60);
-                
-                playProgress = (audio.currentTime / audio.duration) * 100;
-                
-                if(curMinutes < 10)
-                        curMinutes = '0'+curMinutes;
-                if(curSeconds < 10)
-                        curSeconds = '0'+curSeconds;
-                
-                if(durMinutes < 10)
-                        durMinutes = '0'+durMinutes;
-                if(durSeconds < 10)
-                        durSeconds = '0'+durSeconds;
-        
-        if( isNaN(curMinutes) || isNaN(curSeconds) )
-            tProgress.text('00:00');
-        else
-                    tProgress.text(curMinutes+':'+curSeconds);
-        
-        if( isNaN(durMinutes) || isNaN(durSeconds) )
-            tTime.text('00:00');
-        else
-                    tTime.text(durMinutes+':'+durSeconds);
-        
-        if( isNaN(curMinutes) || isNaN(curSeconds) || isNaN(durMinutes) || isNaN(durSeconds) )
-            trackTime.removeClass('active');
-        else
-            trackTime.addClass('active');
-
-        
-                seekBar.width(playProgress+'%');
-                
-                if( playProgress == 100 )
-                {
-                        i.attr('class','fa fa-play');
-                        seekBar.width(0);
-            tProgress.text('00:00');
-            albumArt.removeClass('buffering').removeClass('active');
-            clearInterval(buffInterval);
-                }
-    }
-    
-    function checkBuffering()
-    {
-        clearInterval(buffInterval);
-        buffInterval = setInterval(function()
-        { 
-            if( (nTime == 0) || (bTime - nTime) > 1000  )
-                albumArt.addClass('buffering');
-            else
-                albumArt.removeClass('buffering');
-
-            bTime = new Date();
-            bTime = bTime.getTime();
-
-        },100);
-    }
-
-    function selectTrack(flag)
-    {
-        if( flag == 0 || flag == 1 )
-            ++currIndex;
-        else
-            --currIndex;
-
-        if( (currIndex > -1) && (currIndex < albumArtworks.length) )
-        {
-            if( flag == 0 )
-                i.attr('class','fa fa-play');
-            else
-            {
-                albumArt.removeClass('buffering');
-                i.attr('class','fa fa-pause');
-            }
-
-            seekBar.width(0);
-            trackTime.removeClass('active');
-            tProgress.text('00:00');
-            tTime.text('00:00');
-
-            currAlbum = albums[currIndex];
-            currTrackName = trackNames[currIndex];
-            currArtwork = albumArtworks[currIndex];
-
-            audio.src = trackUrl[currIndex];
-            
-            nTime = 0;
-            bTime = new Date();
-            bTime = bTime.getTime();
-
-            if(flag != 0)
-            {
-                audio.play();
-                playerTrack.addClass('active');
-                albumArt.addClass('active');
-            
-                clearInterval(buffInterval);
-                checkBuffering();
-            }
-
-            albumName.text(currAlbum);
-            trackName.text(currTrackName);
-            albumArt.find('img.active').removeClass('active');
-            $('#'+currArtwork).addClass('active');
-            
-            
-        }
-        else
-        {
-            if( flag == 0 || flag == 1 )
-                --currIndex;
-            else
-                ++currIndex;
-        }
-    }
-
-    function initPlayer()
-        {        
-        audio = new Audio();
-
-                selectTrack(0);
-                
-                audio.loop = false;
-                
-                playPauseButton.on('click',playPause);
-                
-                sArea.mousemove(function(event){ showHover(event); });
-                
-        sArea.mouseout(hideHover);
-        
-        sArea.on('click',playFromClickedPos);
-                
-        $(audio).on('timeupdate',updateCurrTime);
-
-        playPreviousTrackButton.on('click',function(){ selectTrack(-1);} );
-        playNextTrackButton.on('click',function(){ selectTrack(1);});
-        }
-    
-        initPlayer();
+$(document).ready(function () {
+  $('#taskTime').html(defaultTaskTime);
+  $('#breakTime').html(defaultBreakTime);
+  $('#resetClockButton').trigger('click');
+  $('[data-toggle="tooltip"]').tooltip();
+  
+  // Disable notifications where not supported: mobile and IE
+  if (typeof window.orientation !== 'undefined' ||
+      navigator.userAgent.match(/mobile/gi) ||
+      navigator.userAgent.match(/trident/gi) ||
+      navigator.userAgent.match(/edge/gi)) {
+    $('#notificationsLabel').css('display', 'none');
+  }
 });
+
+// Manages the play/pause button and starting + stopping the timer.
+$('#playPauseButton').click(function () {
+  if ($('#playPauseButton').attr('class') === 'fa fa-pause fa-stack-1x') {
+    $('#playPauseButton').attr('class', 'fa fa-play fa-stack-1x');
+    clearInterval(counter);
+  } else {
+    $('#playPauseButton').attr('class', 'fa fa-pause fa-stack-1x');
+    startSeconds = startSeconds || $('#taskTime').html() * 60;
+
+    if ($('#testMode').is(':checked')) {
+      counter = setInterval(countDown, 100);
+    } else {
+      counter = setInterval(countDown, 1000);
+    }
+  }
+});
+
+// uses stringToSeconds() and showTime() to subtract a second and update the time display.
+// Switches to break timer / task time when the clock reaches 0:00.
+function countDown() {
+  var time = $('#clockTime').text();
+
+  // subtract a second from the time and update the clock
+  if (stringToSeconds(time) > 0) {
+    var seconds = stringToSeconds(time) - 1;
+    showTime(seconds, 'clockTime');
+  }
+
+  // Clock reaches 0:00
+  if (time === '0') {
+    sessionCount++;
+    if (sessionCount % 2 === 1) {
+      // Break Time
+      if ($('#notify').is(':checked')) {
+        notify('Task Timer complete!');
+      }
+
+      startTimer('break');
+
+    } else {
+      // Task Time
+      if ($('#notify').is(':checked') && $('#breakTime').html() > 0) {
+        notify('Break Timer complete. Start your next task! Sessions completed: ' +
+        (sessionCount / 2));
+      }
+
+      $('#sessionCount').html('<span style="color:red">&#x1f345</span> ' + (sessionCount / 2));
+      startTimer('task');
+    }
+    
+    function startTimer(session) {
+      clearInterval(counter);
+      startSeconds = $('#' + session + 'Time').html() * 60;
+      showTime(startSeconds, 'clockTime');
+      
+      if ($('#testMode').is(':checked') && ($('#perpetual').is(':checked'))) {
+        counter = setInterval(countDown, 100);
+      } else if ($('#perpetual').is(':checked')) {
+        counter = setInterval(countDown, 1000);
+      } else {
+        $('#playPauseButton').trigger('click');
+      }
+    }
+
+  }
+}
+
+//Takes a time-formatted string and converts it to seconds.
+function stringToSeconds(time) {
+  var timeArr = time.split(':'),
+      hours,
+      minutes,
+      seconds;
+
+  if (time.indexOf(':') > -1) {
+    if (timeArr.length > 2) {
+      hours = Number(timeArr[0]),
+      minutes = Number(timeArr[1]),
+      seconds = Number(timeArr[2]) + (minutes * 60) + (hours * 3600);
+      return seconds;
+    } else {
+      minutes = Number(timeArr[0]),
+      seconds = Number(timeArr[1]) + (minutes * 60);
+      return seconds;
+    }
+  } else {
+    seconds = time;
+    return seconds;
+  }
+}
+
+//converts seconds from stringToSeconds() back to a time-formatted string.
+function showTime(seconds, id) {
+  var displayHours = Math.floor(seconds / 3600),
+      displayMinutes = Math.floor((seconds - (displayHours * 3600)) / 60),
+      displaySeconds = seconds - (displayHours * 3600) - (displayMinutes * 60),
+      time = displayHours + ':' + displayMinutes + ':' + displaySeconds;
+
+  if (id == 'clockTime') {
+    //main clock shows H:MM:SS, MM:SS, M:SS, SS, or S
+    if (displaySeconds < 10 && displayMinutes > 0) {
+      displaySeconds = '0' + displaySeconds;
+    }
+
+    if (displayMinutes < 10 && displayHours > 0) {
+      displayMinutes = '0' + displayMinutes;
+    }
+
+    time = displayHours + ':' + displayMinutes + ':' + displaySeconds;
+
+    if (displayHours === 0) {
+      time = displayMinutes + ':' + displaySeconds;
+    }
+
+    if (displayHours === 0 && displayMinutes === 0) {
+      time = displaySeconds;
+    }
+
+    // update the progress bar after updating the clock if the timer is running
+    if (startSeconds) {
+      var progress = (100 - ((seconds / startSeconds) * 100)).toFixed(0);
+      $('#progressBar').css('width', progress + '%');
+      $('#showProgress').css('visibility', 'visible');
+      if (sessionCount % 2 === 1) {
+        $('#progressBar').html('&nbsp;Break&nbsp;Time:&nbsp;&nbsp;' + progress + '%&nbsp;complete');
+      } else {
+        $('#progressBar').html('&nbsp;Task&nbsp;Time:&nbsp;&nbsp;' + progress + '%&nbsp;complete');
+      }
+    }
+  } else {
+    //task and break times shown as H:MM, MM, or M.
+    if (displayHours === 0) {
+      time = displayMinutes;
+    } else if (displayHours > 0 && displayMinutes < 10) {
+      time = displayHours + ':' + '0' + displayMinutes;
+    } else {
+      time = displayHours + ':' + displayMinutes;
+    }
+  }
+
+  $('#' + id).html(time);
+}
+
+// Ask permission for desktop notifications when the setting is enabled
+// If permission is denied, alert the user and hide the setting.
+$('#notify').change(function () {
+  if ($('#notify').is(':checked')) {
+    if (Notification.permission !== 'granted') {
+      Notification.requestPermission(function () {
+        if (Notification.permission !== 'granted') {
+          alert('Desktop notifications are disabled or not supported in your browser.');
+          $('#notificationsLabel').css('display', 'none');
+        }
+      });
+    }
+  }
+});
+
+// Desktop notification message
+function notify(message) {
+  var notification = new Notification('Pomodoro Timer', {
+    icon: 'https://farm2.staticflickr.com/1463/25084523152_7b93879cce_o.jpg',
+    body: message,
+  });
+}
+
+$('#taskTimeUpButton').click(function () {
+  var seconds = stringToSeconds($('#taskTime').html()) * 60;
+  if (seconds < (7200)) {
+    var id = 'taskTime';
+    seconds = seconds + 60;
+    showTime(seconds, id);
+    updateClock(seconds);
+  }
+});
+
+$('#taskTimeDownButton').click(function () {
+  var seconds = stringToSeconds($('#taskTime').html()) * 60;
+  if (seconds > (60)) {
+    var id = 'taskTime';
+    seconds = seconds - 60;
+    showTime(seconds, id);
+    updateClock(seconds);
+  }
+});
+
+$('#taskTimeResetButton').click(function () {
+  $('#taskTime').html(defaultTaskTime);
+  var seconds = stringToSeconds($('#taskTime').html()) * 60;
+  var id = 'taskTime';
+  showTime(seconds, id);
+  updateClock(seconds);
+});
+
+//Update the clock with the current Task Time value
+function updateClock(seconds) {
+  if (!startSeconds) {
+    var id = 'clockTime';
+    showTime(seconds, id);
+  }
+}
+
+//adjust break times
+$('#breakTimeUpButton').click(function () {
+  var time = $('#breakTime').html();
+  var seconds = stringToSeconds(time) * 60;
+  if (seconds < (7200)) {
+    var id = 'breakTime';
+    seconds = seconds + 60;
+    showTime(seconds, id);
+  }
+});
+
+$('#breakTimeDownButton').click(function () {
+  var time = $('#breakTime').html();
+  var seconds = stringToSeconds(time) * 60;
+  if (seconds > (0)) {
+    var id = 'breakTime';
+    seconds = seconds - 60;
+    showTime(seconds, id);
+  }
+});
+
+$('#breakTimeResetButton').click(function () {
+  $('#breakTime').html(defaultBreakTime);
+});
+
+//Reset the timer back to the current Task Time setting. Stop the clock if running.
+$('#resetClockButton').click(function () {
+  clearInterval(counter);
+  var seconds = stringToSeconds($('#taskTime').html()) * 60;
+  startSeconds = null;
+  var id = 'clockTime';
+  showTime(seconds, id);
+  sessionCount = 0;
+  $('#playPauseButton').attr('class', 'fa fa-play fa-stack-1x');
+  $('#showProgress').css('visibility', 'hidden');
+  $('#sessionCount').html('<span style="color:red">&#x1f345</span> 0');
+});
+
